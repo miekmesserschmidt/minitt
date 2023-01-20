@@ -5,7 +5,7 @@ from .errors import Critical
 
 if TYPE_CHECKING:
     from .expressions import Expression
-    from .environment import Environment
+    from .environment import Environment, NormalEnvironment
     from .expressions import Branch
 
 
@@ -15,9 +15,21 @@ DeBruijnLevel: TypeAlias = int
 #Branches: Tuple["Branch"]
 # BranchClosure: TypeAlias = Tuple[Tuple["Branch"], "Environment"]
 
+
 class BranchClosure(NamedTuple):
     branches : Tuple["Branch"]
     env: "Environment"
+    
+    def __getitem__(self, name:Name)->"Expression":
+        for br in self.branches:
+            if br.name == name:
+                return br.expr
+        else:
+            raise Critical(f"branch '{name}' not found") 
+        
+class NormalBranchClosure(NamedTuple):
+    branches : Tuple["Branch"]
+    env: "NormalEnvironment"
     
     def __getitem__(self, name:Name)->"Expression":
         for br in self.branches:

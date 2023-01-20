@@ -52,8 +52,8 @@ class VariablePattern(Pattern):
     def __contains__(self, name: Name):
         return name == self.name
 
-    def project(self, name: Name, in_: "Value") -> "Value":
-        if self.name == name:
-            return in_
+    def project(self, name: Name, val: "Value") -> "Value":
+        if name in self:
+            return val
         else:
             raise Critical("projection error")

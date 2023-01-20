@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from .declarations import Declaration, Definition, RecursiveDefinition
     from .values import Value
     from .pattern import Pattern
+    from .normal_forms import NormalExpression
 
 
 class Environment(Sized, Protocol):
@@ -32,7 +33,7 @@ class EmptyEnvironment(Environment):
 
 @dataclass
 class UpVar(Environment):
-    env: "Environment"
+    previous_env: "Environment"
     pattern: "Pattern"
     val: "Value"
 
@@ -40,26 +41,52 @@ class UpVar(Environment):
         return (
             self.pattern.project(name, self.val)
             if name in self.pattern
-            else self.env[name]
+            else self.previous_env[name]
         )
 
 
     def __len__(self) -> int:
-        return len(self.env) + 1 
+        return len(self.previous_env) + 1 
 
 @dataclass
 class UpDeclaration(Environment):
-    env: "Environment"
+    previous_env: "Environment"
     decl: "Declaration"
 
     def __getitem__(self, name: "Name")-> "Value":
         match self.decl:
             case Definition(pattern, _, assignment) if name in pattern:
-                return pattern.project(name, evaluate(assignment, self.env))
+                v = evaluate(assignment, self.previous_env)
+                return pattern.project(name, v)
             case RecursiveDefinition(pattern, _, assignment) if name in pattern:
-                return pattern.project(name, evaluate(assignment, self))
+                v = evaluate(assignment, self) # uses self as environment 
+                return pattern.project(name, v)
             case _:
-                return self.env[name]
+                return self.previous_env[name]
 
     def __len__(self) -> int:
-        return len(self.env) + 1 
+        return len(self.previous_env) + 1 
+
+
+##################3
+
+
+class NormalEnvironment():
+    pass
+
+@dataclass
+class NormalEmptyEnvironment(NormalEnvironment):
+    pass
+
+@dataclass
+class NormalUpVar(NormalEnvironment):
+    previous_env: "NormalEnvironment"
+    pattern: "Pattern"
+    val: "NormalExpression"
+
+
+@dataclass
+class NormalUpDeclaration(NormalEnvironment):
+    previous_env: "NormalEnvironment"
+    decl: "Declaration"
+

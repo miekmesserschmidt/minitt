@@ -12,3 +12,4 @@ def test_imports():
     import minitt.pattern
     import minitt.values
     import minitt.evaluate
+    import minitt.normal_forms
