@@ -1,0 +1,4 @@
+
+
+class Critical(Exception):
+    pass

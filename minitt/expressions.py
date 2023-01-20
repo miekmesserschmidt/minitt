@@ -1,11 +1,9 @@
 from dataclasses import dataclass
-from typing import List, NamedTuple, TypeAlias
+from typing import List, NamedTuple, Tuple
 
 from .declarations import Declaration
 from .pattern import Pattern
-
-
-Name: TypeAlias = str
+from .helpers import Name
 
 
 @dataclass
@@ -20,27 +18,7 @@ class Variable(Expression):
 
 class Branch(NamedTuple):
     name: Name
-    value: Expression
-
-
-@dataclass
-class Set(Expression):
-    pass
-
-
-@dataclass
-class One(Expression):
-    pass
-
-
-@dataclass
-class Unit(Expression):
-    pass
-
-
-@dataclass
-class Void(Expression):
-    pass
+    expr: Expression
 
 
 @dataclass
@@ -77,18 +55,18 @@ class Pair(Expression):
 
 @dataclass
 class Constructor(Expression):
-    name: str
+    name: Name
     expr: Expression
 
 
 @dataclass
 class Sum(Expression):
-    branches: List[Branch]
+    branches: Tuple[Branch]
 
 
 @dataclass
 class Function(Expression):
-    branches: List[Branch]
+    branches: Tuple[Branch]
 
 
 @dataclass
@@ -105,3 +83,23 @@ class Second(Expression):
 class Program(Expression):  # EDecl
     declaration: Declaration
     next_expression: Expression
+
+
+@dataclass
+class Set(Expression):
+    pass
+
+
+@dataclass
+class One(Expression):
+    pass
+
+
+@dataclass
+class Unit(Expression):
+    pass
+
+
+@dataclass
+class Void(Expression):
+    pass
