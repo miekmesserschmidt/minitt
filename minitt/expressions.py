@@ -61,12 +61,12 @@ class Constructor(Expression):
 
 @dataclass
 class Sum(Expression):
-    branches: Tuple[Branch]
+    branches: Tuple[Branch, ...]
 
 
 @dataclass
 class Function(Expression):
-    branches: Tuple[Branch]
+    branches: Tuple[Branch, ...]
 
 
 @dataclass

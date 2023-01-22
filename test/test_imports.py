@@ -14,3 +14,4 @@ def test_imports():
     import minitt.evaluate
     import minitt.normal_forms
     import minitt.type_env
+    import minitt.checking
