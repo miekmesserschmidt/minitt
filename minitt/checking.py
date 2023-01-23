@@ -152,11 +152,6 @@ def infer_type(
                 case _:
                     raise Critical("first check i error")
                 
-        case Unit():
-            return values.One()
-
-        case One():
-            return values.Set()
 
 
         case _:
