@@ -114,18 +114,18 @@ def check(
             return
 
         case expr, type_val:
-            t1 = check_i(env_len, env, type_env, expr)
+            t1 = infer_type(env_len, env, type_env, expr)
             equal_normal_form(env_len, type_val, t1)
 
 
-def check_i(
+def infer_type(
     env_len: int, env: Environment, type_env: TypeEnvironment, expr: Expression
-) -> values.Value:
+) -> values.Value: #checkI
     match expr:
         case Variable(name):
             return type_env_lookup(name, type_env)
         case Application(fn, arg):
-            t1 = check_i(env_len, env, type_env, fn)
+            t1 = infer_type(env_len, env, type_env, fn)
             match t1:
                 case values.Pi(base_val, fam_cl):
                     check(env_len, env, type_env, arg, base_val)
@@ -135,7 +135,7 @@ def check_i(
                     raise Critical("application check i error")
 
         case First(of_):
-            t = check_i(env_len, env, type_env, of_)
+            t = infer_type(env_len, env, type_env, of_)
             match t:
                 case values.Sigma(base_val, _):
                     return base_val
@@ -143,7 +143,7 @@ def check_i(
                     raise Critical("first check i error")
 
         case Second(of_):
-            t = check_i(env_len, env, type_env, of_)
+            t = infer_type(env_len, env, type_env, of_)
             match t:
                 case values.Sigma(_, fam_cl):
                     of_val = evaluate(of_, env)
@@ -151,6 +151,13 @@ def check_i(
                     return fam_cl.instantiate(base_val)
                 case _:
                     raise Critical("first check i error")
+                
+        case Unit():
+            return values.One()
+
+        case One():
+            return values.Set()
+
 
         case _:
             raise Critical("check_i error")
