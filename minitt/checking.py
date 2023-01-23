@@ -38,11 +38,12 @@ def check_type(
     env_len: int, env: Environment, type_env: TypeEnvironment, expr: Expression
 ):
     match expr:
-        case Pi(pattern, base, fam) | Sigma(pattern, base, fam):
+        case Pi(pattern, base, fam) | Sigma(pattern, base, fam) as dep:
+            print(dep)
             check_type(env_len, env, type_env, base)
-            fam_val = evaluate(fam, env)
+            base_val = evaluate(base, env)
             v = generate_var(env_len)
-            gamma1 = up_type_environment(type_env, pattern, fam_val, v)
+            gamma1 = up_type_environment(type_env, pattern, base_val, v)
             env1 = UpVar(env, pattern, v)
             check_type(env_len + 1, env1, gamma1, fam)
 
@@ -159,10 +160,13 @@ def check_declaration(
     env_len: int, env: Environment, type_env: TypeEnvironment, decl: Declaration
 ) -> TypeEnvironment:
     match decl:
-        case Definition(pattern, of_type, assignment):
+        case Definition(pattern, of_type, assignment) as d:
+            
             check_type(env_len, env, type_env, of_type)
 
             t = evaluate(of_type, env)
+            print("ass : ", assignment)
+            print("type :", t)
             check(env_len, env, type_env, assignment, t)
 
             ass_val = evaluate(assignment, env)
@@ -187,6 +191,9 @@ def check_declaration(
 def equal_normal_form(env_len: int, v0: values.Value, v1: values.Value):
     n0 = readback_value(env_len, v0)
     n1 = readback_value(env_len, v1)
+    
+    print("n0", n0)
+    print("n1", n1)
 
     if n0 != n1:
         raise NotEqual()

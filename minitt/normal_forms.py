@@ -2,7 +2,16 @@ from dataclasses import dataclass
 
 from typing import TYPE_CHECKING
 
-from .environment import EmptyEnvironment, NormalEmptyEnvironment, NormalEnvironment, Environment, NormalUpDeclaration, NormalUpVar, UpDeclaration, UpVar
+from .environment import (
+    EmptyEnvironment,
+    NormalEmptyEnvironment,
+    NormalEnvironment,
+    Environment,
+    NormalUpDeclaration,
+    NormalUpVar,
+    UpDeclaration,
+    UpVar,
+)
 
 from .errors import Critical
 from .helpers import Name, DeBruijnIndex
@@ -63,14 +72,17 @@ class Sum(NormalExpression):
     branch_closure: "NormalBranchClosure"
 
 
+@dataclass
 class Unit(NormalExpression):
     pass
 
 
+@dataclass
 class One(NormalExpression):
     pass
 
 
+@dataclass
 class Set(NormalExpression):
     pass
 
@@ -112,7 +124,7 @@ class NeutralFunction(Neutral):
 
 
 def generate_var(index: int) -> "Value":
-    return NeutralValue(values.Variable(index))
+    return values.NeutralValue(values.Variable(index))
 
 
 def readback_value(env_len: int, value: "Value") -> NormalExpression:
@@ -184,7 +196,7 @@ def readback_env(index: DeBruijnIndex, env: Environment) -> NormalEnvironment:
             nprev_env = readback_env(index, prev_env)
             nexpr = readback_value(index, value)
             return NormalUpVar(nprev_env, pattern, nexpr)
-        
+
         case UpDeclaration(prev_env, decl):
             nprev_env = readback_env(index, prev_env)
             return NormalUpDeclaration(nprev_env, decl)

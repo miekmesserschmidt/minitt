@@ -50,13 +50,16 @@ class Sum(Value):
     branch_closure : BranchClosure #SClos
 
 
+@dataclass
 class Unit(Value):
     pass
 
+@dataclass
 class One(Value):
     pass
 
 
+@dataclass
 class Set(Value):
     pass
 
