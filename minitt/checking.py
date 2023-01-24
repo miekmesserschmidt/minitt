@@ -41,17 +41,20 @@ def check_type(
     env_len: int, env: Environment, type_env: TypeEnvironment, expr: Expression
 ):
     match expr:
-        case Pi(pattern, base, fam) | Sigma(pattern, base, fam) as dep:
-            print(dep)
+        case Pi(pattern, base, fam) | Sigma(pattern, base, fam):
             check_type(env_len, env, type_env, base)
+
             base_val = evaluate(base, env)
             v = generate_var(env_len)
+
             gamma1 = up_type_environment(type_env, pattern, base_val, v)
             env1 = UpVar(env, pattern, v)
+
             check_type(env_len + 1, env1, gamma1, fam)
 
         case Set():
             return
+
         case other:
             check(env_len, env, type_env, other, values.Set())
 
@@ -189,13 +192,13 @@ def infer_type(
 def check_declaration(
     env_len: int, env: Environment, type_env: TypeEnvironment, decl: Declaration
 ) -> TypeEnvironment:
-    match decl:
-        case Definition(pattern, of_type, assignment) as d:
 
+    match decl:
+
+        case Definition(pattern, of_type, assignment) as d:
             check_type(env_len, env, type_env, of_type)
 
             t = evaluate(of_type, env)
-
             check(env_len, env, type_env, assignment, t)
 
             ass_val = evaluate(assignment, env)
