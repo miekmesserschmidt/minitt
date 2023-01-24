@@ -1,5 +1,3 @@
-
-
 from dataclasses import dataclass
 from typing import Tuple
 from .expressions import Branch
@@ -13,49 +11,50 @@ from .closure import ClosureBase
 class Value:
     pass
 
+
 @dataclass
 class Lambda(Value):
-    closure : ClosureBase
-    
+    closure: ClosureBase
+
+
 @dataclass
 class Pair(Value):
-    a : Value
-    b : Value
-    
+    a: Value
+    b: Value
+
+
 @dataclass
 class Constructor(Value):
-    name : Name
-    arg : Value
-    
-    def __post_init__(self):
-        print(f"=>>>>>>{self=}")
-        
+    name: Name
+    arg: Value
+
 
 @dataclass
 class Pi(Value):
-    base : Value
-    fam : ClosureBase
+    base: Value
+    fam: ClosureBase
 
 
 @dataclass
 class Sigma(Value):
-    base : Value
-    fam : ClosureBase
-
+    base: Value
+    fam: ClosureBase
 
 
 @dataclass
 class Function(Value):
-    branch_closure : BranchClosure #SClos
+    branch_closure: BranchClosure  # SClos
+
 
 @dataclass
 class Sum(Value):
-    branch_closure : BranchClosure #SClos
+    branch_closure: BranchClosure  # SClos
 
 
 @dataclass
 class Unit(Value):
     pass
+
 
 @dataclass
 class One(Value):
@@ -66,11 +65,10 @@ class One(Value):
 class Set(Value):
     pass
 
+
 @dataclass
 class NeutralValue(Value):
     neutral: "Neutral"
-
-
 
 
 #########3
@@ -80,23 +78,26 @@ class Neutral:
 
 @dataclass
 class Variable(Neutral):
-    index : DeBruijnIndex
-    
+    index: DeBruijnIndex
+
+
 @dataclass
 class Application(Neutral):
-    fn : Neutral
-    arg : Value
-    
+    fn: Neutral
+    arg: Value
+
+
 @dataclass
 class First(Neutral):
-    of : Neutral
-    
+    of: Neutral
+
+
 @dataclass
 class Second(Neutral):
-    of : Neutral
+    of: Neutral
+
 
 @dataclass
 class NeutralFunction(Neutral):
-    branch_closure : BranchClosure
-    scrutinee : Neutral
-    
+    branch_closure: BranchClosure
+    scrutinee: Neutral

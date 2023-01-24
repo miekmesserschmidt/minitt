@@ -63,21 +63,20 @@ def check(
     expr: Expression,
     type_val: values.Value,
 ) -> Tuple[Environment, TypeEnvironment]:
-    print("=========CHECK========")
-    print("expr : ", expr, "\n")
-    print("type_val : ", type_val, "\n")
-    print("env : ", env, "\n")
-    print("type_env : ", type_env, "\n")
-    
+    # print("=========CHECK========")
+    # print("expr : ", expr, "\n")
+    # print("type_val : ", type_val, "\n")
+    # print("env : ", env, "\n")
+    # print("type_env : ", type_env, "\n")
+
     match expr, type_val:
 
-        
         # workaround for variables of type One all being the same Unit
         # not in MiniTT
         case Lambda(p, expr), values.Pi(values.One(), fam_cl):
             v = values.Unit()
-            type_val = fam_cl.instantiate(v) 
-            
+            type_val = fam_cl.instantiate(v)
+
             return check(env_len, env, type_env, expr, type_val)
 
         ###########
@@ -85,12 +84,9 @@ def check(
             v = generate_var(env_len)
             gamma1 = up_type_environment(type_env, p, base_val, v)
             env1 = UpVar(env, p, v)
-            
-            print("BEFORE")
-            type_val = fam_cl.instantiate(v) #<------
-            print(f"{type_val=}")
-            
-            
+
+            type_val = fam_cl.instantiate(v)
+
             return check(env_len + 1, env1, gamma1, expr, type_val)
 
         case Pair(a, b), values.Sigma(base_val, fam_cl):
@@ -116,11 +112,6 @@ def check(
                 base_val = evaluate(br1.expr, env)
                 ext_fam_cl = ClosureComposition(fam_cl, br0.name)
                 br_pi_val = values.Pi(base_val, ext_fam_cl)
-                
-                print(f"function branch {br0=}", "\n") 
-                print(f"constructor_branch {br1=}", "\n")
-                print(f"{base_val=}\n")
-                print(f"{br_pi_val=}\n")
 
                 check(env_len, env, type_env, br0.expr, br_pi_val)
             return env, type_env
@@ -136,7 +127,7 @@ def check(
         case Sum(branches), values.Set():
             for br in branches:
                 check(env_len, env, type_env, br.expr, values.Set())
-                
+
             return (env, type_env)
 
         case Program(decl, next_expr), type_val:
@@ -149,22 +140,20 @@ def check(
 
         case expr, type_val:
             inferred_type = infer_type(env_len, env, type_env, expr)
-            print("inferred",inferred_type)
-            
+
             equal_normal_form(env_len, type_val, inferred_type)
-            
+
             return (env, type_env)
 
 
 def infer_type(
     env_len: int, env: Environment, type_env: TypeEnvironment, expr: Expression
 ) -> values.Value:  # checkI
-    print(">>>>>>inferring")
-    print(expr)
     match expr:
+
         case Variable(name):
             return type_env_lookup(name, type_env)
-        
+
         case Application(fn, arg):
             t1 = infer_type(env_len, env, type_env, fn)
             match t1:
@@ -194,7 +183,6 @@ def infer_type(
                     raise Critical("first check i error")
 
         case _:
-            print(expr)
             raise Critical(f"check_i error {expr}")
 
 
@@ -207,8 +195,7 @@ def check_declaration(
             check_type(env_len, env, type_env, of_type)
 
             t = evaluate(of_type, env)
-            print("ass : ", assignment)
-            print("type :", t)
+
             check(env_len, env, type_env, assignment, t)
 
             ass_val = evaluate(assignment, env)
@@ -233,9 +220,6 @@ def check_declaration(
 def equal_normal_form(env_len: int, v0: values.Value, v1: values.Value):
     n0 = readback_value(env_len, v0)
     n1 = readback_value(env_len, v1)
-
-    print(f"{n0=}\n")
-    print(f"{n1=}\n")
 
     assert n0 == n1
     if n0 != n1:
