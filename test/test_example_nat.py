@@ -23,6 +23,8 @@ from minitt.declarations import Definition, RecursiveDefinition
 
 from minitt import values
 
+from .helpers import apply, build_program, lam
+
 
 nat = RecursiveDefinition(
     pattern=VariablePattern("nat"),
@@ -36,7 +38,9 @@ nat_elim = RecursiveDefinition(
         pattern=VariablePattern("C"),
         base=ArrowType(Variable("nat"), Set()),
         family=ArrowType(
-            Application(Variable("C"), Constructor("zero", Unit())),
+            Application(
+                Variable("C"), Constructor("zero", Unit())
+            ),  # type of zero case
             ArrowType(
                 Pi(
                     VariablePattern("n"),
@@ -54,40 +58,32 @@ nat_elim = RecursiveDefinition(
             ),
         ),
     ),
-    assignment=Lambda(
+    assignment=lam(
         VariablePattern("C"),
-        Lambda(
-            VariablePattern("zero_case"),
-            Lambda(
-                VariablePattern("g"),
-                binder=Function(
-                    (
-                        Branch("zero", Lambda(EmptyPattern(), Variable("zero_case"))),
-                        Branch(
-                            "succ",
-                            Lambda(
-                                VariablePattern("n1"),
-                                Application(
-                                    Application(Variable("g"), Variable("n1")),
-                                    #
-                                    Application(
-                                        Application(
-                                            Application(
-                                                Application(
-                                                    Variable("nat_elim"), Variable("C")
-                                                ),
-                                                Variable("zero_case"),
-                                            ),
-                                            Variable("g"),
-                                        ),
-                                        Variable("n1"),
-                                    ),
-                                ),
+        VariablePattern("zero_case"),
+        VariablePattern("g"),
+        #
+        binder=Function(
+            (
+                Branch("zero", Lambda(EmptyPattern(), Variable("zero_case"))),
+                Branch(
+                    "succ",
+                    Lambda(
+                        VariablePattern("n1"),  # argument to succ
+                        apply(
+                            apply(Variable("g"), Variable("n1")),
+                            apply(
+                                Variable("nat_elim"),
+                                #
+                                Variable("C"),
+                                Variable("zero_case"),
+                                Variable("g"),
+                                Variable("n1"),
                             ),
                         ),
-                    )
+                    ),
                 ),
-            ),
+            )
         ),
     ),
 )
@@ -95,11 +91,37 @@ nat_elim = RecursiveDefinition(
 
 def test_nat():
 
-    p = Program(nat, Unit())
+    p = build_program(nat)
     check(0, EmptyEnvironment(), [], p, values.One())
 
 
 def test_nat_elim():
 
-    p = Program(nat, Program(nat_elim, Unit()))
+    p = build_program(nat, nat_elim)
     check(0, EmptyEnvironment(), [], p, values.One())
+
+
+def test_nat_add_one():
+
+    motive = Lambda(EmptyPattern(), Variable("nat"))
+
+    add_one = Definition(
+        VariablePattern("add_one"),
+        ArrowType(Variable("nat"), Variable("nat")),
+        #
+        Lambda(VariablePattern("n"), Constructor("succ", Variable("n"))),
+    )
+
+    expect_one = Definition(
+        VariablePattern("expect_one"),
+        Variable("nat"),
+        #
+        apply(Variable("add_one"), Constructor("zero", Unit())),
+    )
+
+    p = build_program(nat, nat_elim, add_one, expect_one)
+    env, type_env = check(0, EmptyEnvironment(), [], p, values.One())
+
+    assert env["expect_one"] == values.Constructor(
+        "succ", values.Constructor("zero", values.Unit())
+    )
