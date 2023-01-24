@@ -125,3 +125,42 @@ def test_nat_add_one():
     assert env["expect_one"] == values.Constructor(
         "succ", values.Constructor("zero", values.Unit())
     )
+
+
+def test_nat_add_one_with_elim():
+
+    motive = Lambda(EmptyPattern(), Variable("nat"))
+    
+    zero_case = Constructor("succ", Constructor("zero", Unit()))
+    induction = lam(
+        VariablePattern("n"),
+        VariablePattern("Cn"),
+        binder = Constructor("succ", Variable("n"))
+    )
+
+    add_one = Definition(
+        VariablePattern("add_one"),
+        ArrowType(Variable("nat"), Variable("nat")),
+        #
+        apply(
+            Variable("nat_elim"), 
+            #
+            motive, 
+            zero_case,
+            induction,
+        )
+    )
+
+    expect_one = Definition(
+        VariablePattern("expect_one"),
+        Variable("nat"),
+        #
+        apply(Variable("add_one"), Constructor("zero", Unit())),
+    )
+
+    p = build_program(nat, nat_elim, add_one, expect_one)
+    env, type_env = check(0, EmptyEnvironment(), [], p, values.One())
+
+    assert env["expect_one"] == values.Constructor(
+        "succ", values.Constructor("zero", values.Unit())
+    )
