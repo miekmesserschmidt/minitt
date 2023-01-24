@@ -1,3 +1,4 @@
+from typing import Tuple
 from xmlrpc.client import NOT_WELLFORMED_ERROR
 from .pattern import EmptyPattern
 from .declarations import Declaration, Definition, RecursiveDefinition
@@ -61,7 +62,7 @@ def check(
     type_env: TypeEnvironment,
     expr: Expression,
     type_val: values.Value,
-):
+) -> Tuple[Environment, TypeEnvironment]:
     print("=========CHECK========")
     print("expr : ", expr, "\n")
     print("type_val : ", type_val, "\n")
@@ -72,11 +73,12 @@ def check(
 
         
         # workaround for variables of type One all being the same Unit
+        # not in MiniTT
         case Lambda(p, expr), values.Pi(values.One(), fam_cl):
             v = values.Unit()
             type_val = fam_cl.instantiate(v) 
             
-            check(env_len, env, type_env, expr, type_val)
+            return check(env_len, env, type_env, expr, type_val)
 
         ###########
         case Lambda(p, expr), values.Pi(base_val, fam_cl):
@@ -89,17 +91,17 @@ def check(
             print(f"{type_val=}")
             
             
-            check(env_len + 1, env1, gamma1, expr, type_val)
+            return check(env_len + 1, env1, gamma1, expr, type_val)
 
         case Pair(a, b), values.Sigma(base_val, fam_cl):
             check(env_len, env, type_env, a, base_val)
             a_val = evaluate(a, env)
-            check(env_len, env, type_env, b, fam_cl.instantiate(a_val))
+            return check(env_len, env, type_env, b, fam_cl.instantiate(a_val))
 
         case Constructor(name, expr), values.Sum(br_clos):
             branch_type_expr = lookup(name, br_clos.branches)
             branch_type_val = evaluate(branch_type_expr, env)
-            check(env_len, env, type_env, expr, branch_type_val)
+            return check(env_len, env, type_env, expr, branch_type_val)
 
         case Function(branches), values.Pi(values.Sum(br_clos), fam_cl):
             type_val_branches = br_clos.branches
@@ -121,6 +123,7 @@ def check(
                 print(f"{br_pi_val=}\n")
 
                 check(env_len, env, type_env, br0.expr, br_pi_val)
+            return env, type_env
 
         case (Pi(pattern, base, fam) | Sigma(pattern, base, fam)), values.Set():
             check(env_len, env, type_env, base, values.Set())
@@ -128,25 +131,29 @@ def check(
             a_val = evaluate(base, env)
             gamma1 = up_type_environment(type_env, pattern, a_val, v)
             env1 = UpVar(env, pattern, v)
-            check(env_len + 1, env1, gamma1, fam, values.Set())
+            return check(env_len + 1, env1, gamma1, fam, values.Set())
 
         case Sum(branches), values.Set():
             for br in branches:
                 check(env_len, env, type_env, br.expr, values.Set())
+                
+            return (env, type_env)
 
         case Program(decl, next_expr), type_val:
             gamma1 = check_declaration(env_len, env, type_env, decl)
             env1 = UpDeclaration(env, decl)
-            check(env_len, env1, gamma1, next_expr, type_val)
+            return check(env_len, env1, gamma1, next_expr, type_val)
 
         case ((Unit(), values.One()) | (One(), values.Set())):
-            return
+            return (env, type_env)
 
         case expr, type_val:
-            t1 = infer_type(env_len, env, type_env, expr)
-            print("inferred",t1)
+            inferred_type = infer_type(env_len, env, type_env, expr)
+            print("inferred",inferred_type)
             
-            equal_normal_form(env_len, type_val, t1)
+            equal_normal_form(env_len, type_val, inferred_type)
+            
+            return (env, type_env)
 
 
 def infer_type(
@@ -227,8 +234,9 @@ def equal_normal_form(env_len: int, v0: values.Value, v1: values.Value):
     n0 = readback_value(env_len, v0)
     n1 = readback_value(env_len, v1)
 
-    print("n0", n0)
-    print("n1", n1)
+    print(f"{n0=}\n")
+    print(f"{n1=}\n")
 
+    assert n0 == n1
     if n0 != n1:
         raise NotEqual()

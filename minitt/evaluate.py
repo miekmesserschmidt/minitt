@@ -102,7 +102,7 @@ def second(of: "Value") -> "Value":
 def apply(fn_val: "Value", arg: "Value") -> "Value":
     from . import values
     match fn_val, arg:
-        case (values.Lambda(cl), Value()):
+        case (values.Lambda(cl), values.Value()):
             return cl.instantiate(arg)
         case (
             values.Function(branch_closure),
