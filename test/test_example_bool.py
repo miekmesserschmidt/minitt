@@ -22,6 +22,7 @@ from minitt.pattern import EmptyPattern, VariablePattern
 from minitt.declarations import Definition
 
 from minitt import values
+from minitt.type_env import make_empty_type_env
 
 
 bool_ = Definition(
@@ -68,13 +69,13 @@ bool_elim = Definition(
 def test_bool():
 
     p = Program(bool_, Unit())
-    check(0, EmptyEnvironment(), [], p, values.One())
+    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
 
 
 def test_bool_elim():
 
     p = Program(bool_, Program(bool_elim, Unit()))
-    check(0, EmptyEnvironment(), [], p, values.One())
+    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
 
 
 def test_not():
@@ -112,7 +113,7 @@ def test_not():
         ),
     )
 
-    env, type_env = check(0, EmptyEnvironment(), [], p, values.One())
+    env, type_env = check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
 
     assert env["expect_true"] == values.Constructor("true", arg=values.Unit())
     assert env["expect_false"] == values.Constructor("false", arg=values.Unit())

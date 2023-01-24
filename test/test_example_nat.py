@@ -22,6 +22,7 @@ from minitt.pattern import EmptyPattern, VariablePattern
 from minitt.declarations import Definition, RecursiveDefinition
 
 from minitt import values
+from minitt.type_env import  make_empty_type_env
 
 from .helpers import apply, build_program, lam
 
@@ -92,13 +93,13 @@ nat_elim = RecursiveDefinition(
 def test_nat():
 
     p = build_program(nat)
-    check(0, EmptyEnvironment(), [], p, values.One())
+    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
 
 
 def test_nat_elim():
 
     p = build_program(nat, nat_elim)
-    check(0, EmptyEnvironment(), [], p, values.One())
+    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
 
 
 def test_nat_add_one():
@@ -120,7 +121,7 @@ def test_nat_add_one():
     )
 
     p = build_program(nat, nat_elim, add_one, expect_one)
-    env, type_env = check(0, EmptyEnvironment(), [], p, values.One())
+    env, type_env = check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
 
     assert env["expect_one"] == values.Constructor(
         "succ", values.Constructor("zero", values.Unit())
@@ -159,7 +160,7 @@ def test_nat_add_one_with_elim():
     )
 
     p = build_program(nat, nat_elim, add_one, expect_one)
-    env, type_env = check(0, EmptyEnvironment(), [], p, values.One())
+    env, type_env = check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
 
     assert env["expect_one"] == values.Constructor(
         "succ", values.Constructor("zero", values.Unit())
