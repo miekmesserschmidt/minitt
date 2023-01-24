@@ -54,6 +54,8 @@ class UpDeclaration(Environment):
     decl: "Declaration"
 
     def __getitem__(self, name: "Name")-> "Value":
+        from .declarations import  Definition, RecursiveDefinition
+
         match self.decl:
             case Definition(pattern, _, assignment) if name in pattern:
                 v = evaluate(assignment, self.previous_env)

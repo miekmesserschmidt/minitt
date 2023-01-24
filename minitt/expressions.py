@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List, NamedTuple, Tuple
 
 from .declarations import Declaration
-from .pattern import Pattern
+from .pattern import EmptyPattern, Pattern
 from .helpers import Name
 
 
@@ -38,6 +38,9 @@ class Pi(Expression):
     pattern: Pattern
     base: Expression
     family: Expression
+    
+def ArrowType(base: Expression, family:Expression) -> Pi:
+    return Pi(EmptyPattern(), base, family)
 
 
 @dataclass

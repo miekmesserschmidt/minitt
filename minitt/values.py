@@ -27,6 +27,9 @@ class Constructor(Value):
     name : Name
     arg : Value
     
+    def __post_init__(self):
+        print(f"=>>>>>>{self=}")
+        
 
 @dataclass
 class Pi(Value):

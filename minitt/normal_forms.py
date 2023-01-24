@@ -19,10 +19,10 @@ from .helpers import Name, DeBruijnIndex
 
 from . import values
 
+from .helpers import DeBruijnIndex, Name, NormalBranchClosure
 
 if TYPE_CHECKING:
     from .values import NeutralValue, Value
-    from .helpers import DeBruijnIndex, Name, NormalBranchClosure
     from .expressions import Branch, Expression
 
 

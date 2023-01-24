@@ -41,4 +41,5 @@ class ClosureComposition(ClosureBase):
 
     def instantiate(self, v: "Value") -> "Value":
         from .values import Constructor        
+        print(f"{v=}")
         return self.cl.instantiate(Constructor(self.name, v))

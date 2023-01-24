@@ -1,3 +1,5 @@
+from xmlrpc.client import NOT_WELLFORMED_ERROR
+from .pattern import EmptyPattern
 from .declarations import Declaration, Definition, RecursiveDefinition
 from .closure import ClosureComposition
 
@@ -60,12 +62,34 @@ def check(
     expr: Expression,
     type_val: values.Value,
 ):
+    print("=========CHECK========")
+    print("expr : ", expr, "\n")
+    print("type_val : ", type_val, "\n")
+    print("env : ", env, "\n")
+    print("type_env : ", type_env, "\n")
+    
     match expr, type_val:
+
+        
+        # workaround for variables of type One all being the same Unit
+        case Lambda(p, expr), values.Pi(values.One(), fam_cl):
+            v = values.Unit()
+            type_val = fam_cl.instantiate(v) 
+            
+            check(env_len, env, type_env, expr, type_val)
+
+        ###########
         case Lambda(p, expr), values.Pi(base_val, fam_cl):
             v = generate_var(env_len)
             gamma1 = up_type_environment(type_env, p, base_val, v)
             env1 = UpVar(env, p, v)
-            check(env_len + 1, env1, gamma1, expr, fam_cl.instantiate(v))
+            
+            print("BEFORE")
+            type_val = fam_cl.instantiate(v) #<------
+            print(f"{type_val=}")
+            
+            
+            check(env_len + 1, env1, gamma1, expr, type_val)
 
         case Pair(a, b), values.Sigma(base_val, fam_cl):
             check(env_len, env, type_env, a, base_val)
@@ -73,23 +97,28 @@ def check(
             check(env_len, env, type_env, b, fam_cl.instantiate(a_val))
 
         case Constructor(name, expr), values.Sum(br_clos):
-            branch_expr = lookup(name, br_clos.branches)
-            branch_val = evaluate(branch_expr, env)
-            check(env_len, env, type_env, branch_expr, branch_val)
+            branch_type_expr = lookup(name, br_clos.branches)
+            branch_type_val = evaluate(branch_type_expr, env)
+            check(env_len, env, type_env, expr, branch_type_val)
 
         case Function(branches), values.Pi(values.Sum(br_clos), fam_cl):
-            val_branches = br_clos.branches
-            if len(branches) == len(val_branches):
+            type_val_branches = br_clos.branches
+            if len(branches) != len(type_val_branches):
                 raise Critical("branch length mismatch")
 
-            for br0, br1 in zip(branches, val_branches):
+            for br0, br1 in zip(branches, type_val_branches):
                 if br0.name != br1.name:
                     raise Critical("branch name mismatch")
 
-            for br0, br1 in zip(branches, val_branches):
+            for br0, br1 in zip(branches, type_val_branches):
                 base_val = evaluate(br1.expr, env)
                 ext_fam_cl = ClosureComposition(fam_cl, br0.name)
                 br_pi_val = values.Pi(base_val, ext_fam_cl)
+                
+                print(f"function branch {br0=}", "\n") 
+                print(f"constructor_branch {br1=}", "\n")
+                print(f"{base_val=}\n")
+                print(f"{br_pi_val=}\n")
 
                 check(env_len, env, type_env, br0.expr, br_pi_val)
 
@@ -115,15 +144,20 @@ def check(
 
         case expr, type_val:
             t1 = infer_type(env_len, env, type_env, expr)
+            print("inferred",t1)
+            
             equal_normal_form(env_len, type_val, t1)
 
 
 def infer_type(
     env_len: int, env: Environment, type_env: TypeEnvironment, expr: Expression
-) -> values.Value: #checkI
+) -> values.Value:  # checkI
+    print(">>>>>>inferring")
+    print(expr)
     match expr:
         case Variable(name):
             return type_env_lookup(name, type_env)
+        
         case Application(fn, arg):
             t1 = infer_type(env_len, env, type_env, fn)
             match t1:
@@ -151,11 +185,10 @@ def infer_type(
                     return fam_cl.instantiate(base_val)
                 case _:
                     raise Critical("first check i error")
-                
-
 
         case _:
-            raise Critical("check_i error")
+            print(expr)
+            raise Critical(f"check_i error {expr}")
 
 
 def check_declaration(
@@ -163,7 +196,7 @@ def check_declaration(
 ) -> TypeEnvironment:
     match decl:
         case Definition(pattern, of_type, assignment) as d:
-            
+
             check_type(env_len, env, type_env, of_type)
 
             t = evaluate(of_type, env)
@@ -193,7 +226,7 @@ def check_declaration(
 def equal_normal_form(env_len: int, v0: values.Value, v1: values.Value):
     n0 = readback_value(env_len, v0)
     n1 = readback_value(env_len, v1)
-    
+
     print("n0", n0)
     print("n1", n1)
 

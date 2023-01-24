@@ -17,6 +17,7 @@ def evaluate(expr: "Expression", env: "Environment") -> "Value":
     match expr:
         case expressions.Program(decl, next_expr):
             return evaluate(next_expr, UpDeclaration(env, decl))
+                    
         case expressions.Lambda(pattern, binder):
             return values.Lambda(Closure(pattern, binder, env))
 
@@ -48,9 +49,9 @@ def evaluate(expr: "Expression", env: "Environment") -> "Value":
             of_val = evaluate(of, env)
             return second(of_val)
 
-        case expressions.Constructor(name, expr):
-            v = evaluate(expr, env)
-            return values.Constructor(name, v)
+        case expressions.Constructor(name, constr_input_expr):
+            constr_input_val = evaluate(constr_input_expr, env)
+            return values.Constructor(name, constr_input_val)
 
         case expressions.Sum(branches):
             return values.Sum(BranchClosure(branches, env))
@@ -114,7 +115,7 @@ def apply(fn_val: "Value", arg: "Value") -> "Value":
             n = values.NeutralFunction(branch_closure, neutral)
             return values.NeutralValue(n)
 
-        case (values.NeutralValue(neutral_fn), Value()):
+        case (values.NeutralValue(neutral_fn), values.Value()):
             n = values.Application(neutral_fn, arg)
             return values.NeutralValue(n)
         
