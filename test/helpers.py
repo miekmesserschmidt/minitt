@@ -3,14 +3,14 @@
 
 from minitt.errors import Critical
 
-from minitt.expressions import Application, Expression, Lambda, Program, Unit
+from minitt.expressions import Application, Expression, Lambda, Program, Star
 from minitt.declarations import Declaration
 from minitt.pattern import Pattern, VariablePattern
 
 
 def build_program(*declarations : Declaration):    
     if len(declarations) == 0:
-        return Unit()
+        return Star()
     else:
         return Program(declarations[0], build_program(*declarations[1:]))
     

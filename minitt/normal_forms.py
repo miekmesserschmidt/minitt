@@ -73,12 +73,12 @@ class Sum(NormalExpression):
 
 
 @dataclass
-class Unit(NormalExpression):
+class Star(NormalExpression): #Unit
     pass
 
 
 @dataclass
-class One(NormalExpression):
+class Top(NormalExpression): #One
     pass
 
 
@@ -176,12 +176,12 @@ def readback_value(env_len: int, value: "Value") -> NormalExpression:
             normal_neut = readback_neutral(env_len, neut)
             return NeutralExpr(normal_neut)
 
-        case values.One():
-            return One()
+        case values.Top():
+            return Top()
         case values.Set():
             return Set()
-        case values.Unit():
-            return Unit()
+        case values.Star():
+            return Star()
 
         case _:
             raise Critical("readback errors")

@@ -9,12 +9,12 @@ from minitt.expressions import (
     Constructor,
     Function,
     Lambda,
-    One,
+    Top,
     Pi,
     Program,
     Set,
     Sum,
-    Unit,
+    Star,
     Variable,
 )
 
@@ -30,7 +30,7 @@ from .helpers import apply, build_program, lam
 nat = RecursiveDefinition(
     pattern=VariablePattern("nat"),
     of_type=Set(),
-    assignment=Sum((Branch("zero", One()), Branch("succ", Variable("nat")))),
+    assignment=Sum((Branch("zero", Top()), Branch("succ", Variable("nat")))),
 )
 
 nat_elim = RecursiveDefinition(
@@ -40,7 +40,7 @@ nat_elim = RecursiveDefinition(
         base=ArrowType(Variable("nat"), Set()),
         family=ArrowType(
             Application(
-                Variable("C"), Constructor("zero", Unit())
+                Variable("C"), Constructor("zero", Star())
             ),  # type of zero case
             ArrowType(
                 Pi(
@@ -93,13 +93,13 @@ nat_elim = RecursiveDefinition(
 def test_nat():
 
     p = build_program(nat)
-    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
+    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.Top())
 
 
 def test_nat_elim():
 
     p = build_program(nat, nat_elim)
-    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
+    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.Top())
 
 
 def test_nat_add_one():
@@ -117,14 +117,14 @@ def test_nat_add_one():
         VariablePattern("expect_one"),
         Variable("nat"),
         #
-        apply(Variable("add_one"), Constructor("zero", Unit())),
+        apply(Variable("add_one"), Constructor("zero", Star())),
     )
 
     p = build_program(nat, nat_elim, add_one, expect_one)
-    env, type_env = check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
+    env, type_env = check(0, EmptyEnvironment(), make_empty_type_env(), p, values.Top())
 
     assert env["expect_one"] == values.Constructor(
-        "succ", values.Constructor("zero", values.Unit())
+        "succ", values.Constructor("zero", values.Star())
     )
 
 
@@ -132,7 +132,7 @@ def test_nat_add_one_with_elim():
 
     motive = Lambda(EmptyPattern(), Variable("nat"))
     
-    zero_case = Constructor("succ", Constructor("zero", Unit()))
+    zero_case = Constructor("succ", Constructor("zero", Star()))
     induction = lam(
         VariablePattern("n"),
         VariablePattern("Cn"),
@@ -156,12 +156,12 @@ def test_nat_add_one_with_elim():
         VariablePattern("expect_one"),
         Variable("nat"),
         #
-        apply(Variable("add_one"), Constructor("zero", Unit())),
+        apply(Variable("add_one"), Constructor("zero", Star())),
     )
 
     p = build_program(nat, nat_elim, add_one, expect_one)
-    env, type_env = check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
+    env, type_env = check(0, EmptyEnvironment(), make_empty_type_env(), p, values.Top())
 
     assert env["expect_one"] == values.Constructor(
-        "succ", values.Constructor("zero", values.Unit())
+        "succ", values.Constructor("zero", values.Star())
     )

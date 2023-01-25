@@ -1,7 +1,7 @@
 
 from minitt.environment import EmptyEnvironment
 from minitt.checking import check
-from minitt.expressions import Application, ArrowType, ArrowType, Branch, Constructor, Function, Lambda, One, Pi, Program, Set, Sum, Unit, Variable
+from minitt.expressions import Application, ArrowType, ArrowType, Branch, Constructor, Function, Lambda, Top, Pi, Program, Set, Sum, Star, Variable
 from minitt.pattern import EmptyPattern, VariablePattern
 from minitt.declarations import Definition
 
@@ -26,7 +26,7 @@ def test_id():
         ),
     )
 
-    p = Program(id_, Unit())
+    p = Program(id_, Star())
 
-    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
+    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.Top())
 

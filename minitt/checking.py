@@ -27,8 +27,8 @@ from .expressions import (
     Sigma,
     Set,
     Sum,
-    Unit,
-    One,
+    Star,
+    Top,
     Variable,
 )
 from .type_env import TypeEnvironment, type_env_lookup, up_type_environment
@@ -66,21 +66,19 @@ def check(
     expr: Expression,
     type_val: values.Value,
 ) -> Tuple[Environment, TypeEnvironment]:
-    # print("=========CHECK========")
-    # print("expr : ", expr, "\n")
-    # print("type_val : ", type_val, "\n")
-    # print("env : ", env, "\n")
-    # print("type_env : ", type_env, "\n")
 
     match expr, type_val:
 
-        # workaround for variables of type One all being the same Unit
+        # workaround for variables of type Top all being the same Star
         # not in MiniTT
-        case Lambda(p, expr), values.Pi(values.One(), fam_cl):
-            v = values.Unit()
+        case Lambda(p, expr), values.Pi(values.Top() as base_val, fam_cl):
+            v = values.Star()
+            gamma1 = up_type_environment(type_env, p, base_val, v)
+            env1 = UpVar(env, p, v)
+
             type_val = fam_cl.instantiate(v)
 
-            return check(env_len, env, type_env, expr, type_val)
+            return check(env_len + 1, env1, gamma1, expr, type_val)
 
         ###########
         case Lambda(p, expr), values.Pi(base_val, fam_cl):
@@ -138,7 +136,7 @@ def check(
             env1 = UpDeclaration(env, decl)
             return check(env_len, env1, gamma1, next_expr, type_val)
 
-        case ((Unit(), values.One()) | (One(), values.Set())):
+        case ((Star(), values.Top()) | (Top(), values.Set())):
             return (env, type_env)
 
         case expr, type_val:

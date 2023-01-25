@@ -9,12 +9,12 @@ from minitt.expressions import (
     Constructor,
     Function,
     Lambda,
-    One,
+    Top,
     Pi,
     Program,
     Set,
     Sum,
-    Unit,
+    Star,
     Variable,
 )
 
@@ -28,7 +28,7 @@ from minitt.type_env import make_empty_type_env
 bool_ = Definition(
     pattern=VariablePattern("bool"),
     of_type=Set(),
-    assignment=Sum((Branch("true", One()), Branch("false", One()))),
+    assignment=Sum((Branch("true", Top()), Branch("false", Top()))),
 )
 
 bool_elim = Definition(
@@ -37,9 +37,9 @@ bool_elim = Definition(
         pattern=VariablePattern("C"),
         base=ArrowType(Variable("bool"), Set()),
         family=ArrowType(
-            Application(Variable("C"), Constructor("true", Unit())),
+            Application(Variable("C"), Constructor("true", Star())),
             ArrowType(
-                Application(Variable("C"), Constructor("false", Unit())),
+                Application(Variable("C"), Constructor("false", Star())),
                 Pi(
                     VariablePattern("b"),
                     Variable("bool"),
@@ -68,20 +68,20 @@ bool_elim = Definition(
 
 def test_bool():
 
-    p = Program(bool_, Unit())
-    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
+    p = Program(bool_, Star())
+    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.Top())
 
 
 def test_bool_elim():
 
-    p = Program(bool_, Program(bool_elim, Unit()))
-    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
+    p = Program(bool_, Program(bool_elim, Star()))
+    check(0, EmptyEnvironment(), make_empty_type_env(), p, values.Top())
 
 
 def test_not():
 
-    true_ = Constructor("true", Unit())
-    false_ = Constructor("false", Unit())
+    true_ = Constructor("true", Star())
+    false_ = Constructor("false", Star())
 
     motive = Lambda(EmptyPattern(), Variable("bool"))
 
@@ -108,12 +108,12 @@ def test_not():
         bool_,
         Program(
             bool_elim,
-            Program(not_, Program(not_on_true, Program(not_on_false, Unit())))
+            Program(not_, Program(not_on_true, Program(not_on_false, Star())))
             # Unit()
         ),
     )
 
-    env, type_env = check(0, EmptyEnvironment(), make_empty_type_env(), p, values.One())
+    env, type_env = check(0, EmptyEnvironment(), make_empty_type_env(), p, values.Top())
 
-    assert env["expect_true"] == values.Constructor("true", arg=values.Unit())
-    assert env["expect_false"] == values.Constructor("false", arg=values.Unit())
+    assert env["expect_true"] == values.Constructor("true", arg=values.Star())
+    assert env["expect_false"] == values.Constructor("false", arg=values.Star())

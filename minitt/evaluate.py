@@ -62,11 +62,11 @@ def evaluate(expr: "Expression", env: "Environment") -> "Value":
         case expressions.Variable(name):
             return env[name]
 
-        case expressions.One():
-            return values.One()
+        case expressions.Top():
+            return values.Top()
 
-        case expressions.Unit():
-            return values.Unit()
+        case expressions.Star():
+            return values.Star()
 
         case expressions.Set():
             return values.Set()
