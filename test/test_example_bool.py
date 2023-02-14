@@ -3,8 +3,8 @@ from minitt.checking import check
 from minitt.evaluate import evaluate
 from minitt.expressions import (
     Application,
-    ArrowType,
-    ArrowType,
+    build_arrow_type,
+    build_arrow_type,
     Branch,
     Constructor,
     Function,
@@ -25,46 +25,7 @@ from minitt import values
 from minitt.type_env import make_empty_type_env
 
 
-bool_ = Definition(
-    pattern=VariablePattern("bool"),
-    of_type=Set(),
-    assignment=Sum((Branch("true", Top()), Branch("false", Top()))),
-)
-
-bool_elim = Definition(
-    pattern=VariablePattern("bool_elim"),
-    of_type=Pi(
-        pattern=VariablePattern("C"),
-        base=ArrowType(Variable("bool"), Set()),
-        family=ArrowType(
-            Application(Variable("C"), Constructor("true", Star())),
-            ArrowType(
-                Application(Variable("C"), Constructor("false", Star())),
-                Pi(
-                    VariablePattern("b"),
-                    Variable("bool"),
-                    Application(Variable("C"), Variable("b")),
-                ),
-            ),
-        ),
-    ),
-    assignment=Lambda(
-        VariablePattern("C"),
-        Lambda(
-            VariablePattern("true_case"),
-            Lambda(
-                VariablePattern("false_case"),
-                binder=Function(
-                    (
-                        Branch("true", Lambda(EmptyPattern(), Variable("true_case"))),
-                        Branch("false", Lambda(EmptyPattern(), Variable("false_case"))),
-                    )
-                ),
-            ),
-        ),
-    ),
-)
-
+from lib.bool import bool_, bool_elim
 
 def test_bool():
 

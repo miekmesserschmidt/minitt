@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List, NamedTuple, Tuple
 
+from .errors import Critical
+
 from .declarations import Declaration
 from .pattern import EmptyPattern, Pattern
 from .helpers import Name
@@ -39,8 +41,22 @@ class Pi(Expression):
     base: Expression
     family: Expression
     
-def ArrowType(base: Expression, family:Expression) -> Pi:
-    return Pi(EmptyPattern(), base, family)
+def build_arrow_type(base: Expression, output_type:Expression) -> Pi:
+    return Pi(EmptyPattern(), base, output_type)
+
+def build_multi_arrow_type(*args: Expression) -> Pi:
+    if  len(args) in (0,1):
+        raise Critical("attempting to build multi arrow with one or no argument")
+        
+    match args:
+        case (base0, base1):
+            return build_arrow_type(base0, base1)
+        
+        case (base0, *rest):
+            return build_arrow_type(base0, build_multi_arrow_type(*rest))        
+            
+        case _:
+            raise Critical("Multi arrow construction error")        
 
 
 @dataclass
@@ -48,6 +64,20 @@ class Sigma(Expression):
     pattern: Pattern
     base: Expression
     family: Expression
+    
+def build_independent_product_type(*args: Expression) -> Sigma:
+    if  len(args) in (0,1):
+        raise Critical("attempting to build multi arrow with one or no argument")
+    
+    match args:        
+        case (a,b):
+            return Sigma(EmptyPattern(), a,b)
+
+        case (a, *rest):
+            return Sigma(EmptyPattern(), a, build_independent_product_type(*rest))
+            
+        case _:
+            raise Critical("Independent product construction error")        
 
 
 @dataclass

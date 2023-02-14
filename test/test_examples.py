@@ -1,7 +1,7 @@
 
 from minitt.environment import EmptyEnvironment
 from minitt.checking import check
-from minitt.expressions import Application, ArrowType, ArrowType, Branch, Constructor, Function, Lambda, Top, Pi, Program, Set, Sum, Star, Variable
+from minitt.expressions import Application, build_arrow_type, build_arrow_type, Branch, Constructor, Function, Lambda, Top, Pi, Program, Set, Sum, Star, Variable
 from minitt.pattern import EmptyPattern, VariablePattern
 from minitt.declarations import Definition
 

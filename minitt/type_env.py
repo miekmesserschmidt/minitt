@@ -36,6 +36,15 @@ def up_type_environment(
             b = second(val)
 
             return up_type_environment(gamma1, b_pattern, b_type_val, b)
+        
+        # case (MultiPattern((a_pattern, *_)) as multi_pattern, values.Sigma(base_val, fam_cl)):
+        #     a = first(val)
+        #     gamma1 = up_type_environment(type_env, a_pattern, base_val, a)
+
+        #     b_type_val = fam_cl.instantiate(a)
+        #     b = second(val)
+
+        #     return up_type_environment(gamma1, multi_pattern.rest(), b_type_val, b)
 
         case _:
             raise Critical("up_type_env error")
