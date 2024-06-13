@@ -40,23 +40,25 @@ class Pi(Expression):
     pattern: Pattern
     base: Expression
     family: Expression
-    
-def build_arrow_type(base: Expression, output_type:Expression) -> Pi:
+
+
+def build_arrow_type(base: Expression, output_type: Expression) -> Pi:
     return Pi(EmptyPattern(), base, output_type)
 
+
 def build_multi_arrow_type(*args: Expression) -> Pi:
-    if  len(args) in (0,1):
+    if len(args) in (0, 1):
         raise Critical("attempting to build multi arrow with one or no argument")
-        
+
     match args:
         case (base0, base1):
             return build_arrow_type(base0, base1)
-        
+
         case (base0, *rest):
-            return build_arrow_type(base0, build_multi_arrow_type(*rest))        
-            
+            return build_arrow_type(base0, build_multi_arrow_type(*rest))
+
         case _:
-            raise Critical("Multi arrow construction error")        
+            raise Critical("Multi arrow construction error")
 
 
 @dataclass
@@ -64,20 +66,21 @@ class Sigma(Expression):
     pattern: Pattern
     base: Expression
     family: Expression
-    
+
+
 def build_independent_product_type(*args: Expression) -> Sigma:
-    if  len(args) in (0,1):
+    if len(args) in (0, 1):
         raise Critical("attempting to build multi arrow with one or no argument")
-    
-    match args:        
-        case (a,b):
-            return Sigma(EmptyPattern(), a,b)
+
+    match args:
+        case (a, b):
+            return Sigma(EmptyPattern(), a, b)
 
         case (a, *rest):
             return Sigma(EmptyPattern(), a, build_independent_product_type(*rest))
-            
+
         case _:
-            raise Critical("Independent product construction error")        
+            raise Critical("Independent product construction error")
 
 
 @dataclass
@@ -124,12 +127,12 @@ class Set(Expression):
 
 
 @dataclass
-class Top(Expression): #One  
+class Top(Expression):  # One
     pass
 
 
 @dataclass
-class Star(Expression): #Unit
+class Star(Expression):  # Unit
     pass
 
 

@@ -10,11 +10,9 @@ if TYPE_CHECKING:
 
 
 class Pattern(Protocol):
-    def __contains__(self, name: Name) -> bool:
-        ...
+    def __contains__(self, name: Name) -> bool: ...
 
-    def project(self, name: Name, in_: "Value") -> "Value":
-        ...
+    def project(self, name: Name, in_: "Value") -> "Value": ...
 
 
 @dataclass
@@ -43,23 +41,23 @@ class PairPattern(Pattern):
             return self.b.project(name, second(in_))
         else:
             raise Critical("projection error")
-                
-        
+
+
 # @dataclass
 # class MultiPattern(Pattern):
 #     patterns : Tuple[Pattern,...]
-    
-    
+
+
 #     def __contains__(self, name: Name) -> bool:
 #         return any( name in p for p in self.patterns)
-    
+
 #     def first(self):
 #         return self.patterns[0]
-    
+
 #     def rest(self) -> "MultiPattern":
 #         _, *rest = self.patterns
 #         return MultiPattern(tuple(rest))
-    
+
 #     def project(self, name: Name, in_: "Value") -> "Value":
 #         from .evaluate import first, second
 
@@ -72,7 +70,7 @@ class PairPattern(Pattern):
 #                 raise Critical(f"{self} is empty. Does not contain {name}")
 #             case _:
 #                 raise Critical("projection error")
-                
+
 
 @dataclass
 class VariablePattern(Pattern):
@@ -93,5 +91,5 @@ class VariablePattern(Pattern):
 #         return EmptyPattern()
 #     elif len(patterns) == 1:
 #         return patterns[0]
-#     else: 
-#         return MultiPattern(patterns) 
+#     else:
+#         return MultiPattern(patterns)

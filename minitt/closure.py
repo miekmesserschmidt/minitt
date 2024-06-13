@@ -2,11 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol
 
 
-
-
-
 from .helpers import Name
-
 
 
 if TYPE_CHECKING:
@@ -14,11 +10,11 @@ if TYPE_CHECKING:
     from .expressions import Expression
     from .pattern import Pattern
     from .environment import Environment
-    
+
+
 class ClosureBase(Protocol):
-    
-    def instantiate(self, v: "Value")->"Value":
-        ...
+
+    def instantiate(self, v: "Value") -> "Value": ...
 
 
 @dataclass
@@ -26,10 +22,11 @@ class Closure(ClosureBase):
     pattern: "Pattern"
     expr: "Expression"
     environment: "Environment"
-    
+
     def instantiate(self, v: "Value") -> "Value":
         from .evaluate import evaluate
         from .environment import UpVar
+
         extended_env = UpVar(self.environment, self.pattern, v)
         return evaluate(self.expr, extended_env)
 
@@ -40,5 +37,6 @@ class ClosureComposition(ClosureBase):
     name: Name
 
     def instantiate(self, v: "Value") -> "Value":
-        from .values import Constructor        
+        from .values import Constructor
+
         return self.cl.instantiate(Constructor(self.name, v))

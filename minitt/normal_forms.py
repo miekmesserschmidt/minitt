@@ -73,12 +73,12 @@ class Sum(NormalExpression):
 
 
 @dataclass
-class Star(NormalExpression): #Unit
+class Star(NormalExpression):  # Unit
     pass
 
 
 @dataclass
-class Top(NormalExpression): #One
+class Top(NormalExpression):  # One
     pass
 
 

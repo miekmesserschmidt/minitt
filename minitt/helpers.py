@@ -12,35 +12,37 @@ if TYPE_CHECKING:
 Name: TypeAlias = str
 DeBruijnIndex: TypeAlias = int
 DeBruijnLevel: TypeAlias = int
-#Branches: Tuple["Branch"]
+# Branches: Tuple["Branch"]
 # BranchClosure: TypeAlias = Tuple[Tuple["Branch"], "Environment"]
 
 
-def lookup(name:Name, branches:Tuple["Branch"]):
+def lookup(name: Name, branches: Tuple["Branch", ...]):
     for br in branches:
         if name == br.name:
             return br.expr
-    else: 
+    else:
         raise Critical(f"{name} not in {branches}")
 
+
 class BranchClosure(NamedTuple):
-    branches : Tuple["Branch", ...]
+    branches: Tuple["Branch", ...]
     env: "Environment"
-    
-    def __getitem__(self, name:Name)->"Expression":
+
+    def __getitem__(self, name: Name) -> "Expression":
         for br in self.branches:
             if br.name == name:
                 return br.expr
         else:
-            raise Critical(f"branch '{name}' not found") 
-        
+            raise Critical(f"branch '{name}' not found")
+
+
 class NormalBranchClosure(NamedTuple):
-    branches : Tuple["Branch", ...]
+    branches: Tuple["Branch", ...]
     env: "NormalEnvironment"
-    
-    def __getitem__(self, name:Name)->"Expression":
+
+    def __getitem__(self, name: Name) -> "Expression":
         for br in self.branches:
             if br.name == name:
                 return br.expr
         else:
-            raise Critical(f"branch '{name}' not found") 
+            raise Critical(f"branch '{name}' not found")

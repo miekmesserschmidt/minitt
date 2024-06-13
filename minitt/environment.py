@@ -15,11 +15,9 @@ if TYPE_CHECKING:
 
 
 class Environment(Sized, Protocol):
-    def __getitem__(self, item: "Name") -> "Value":
-        ...
+    def __getitem__(self, item: "Name") -> "Value": ...
 
-    def __len__(self) -> int:
-        ...
+    def __len__(self) -> int: ...
 
 
 @dataclass

@@ -1,9 +1,7 @@
-
 from typing import TYPE_CHECKING
 from .helpers import BranchClosure
 from .closure import Closure
 from .errors import Critical
-
 
 
 if TYPE_CHECKING:
@@ -11,13 +9,15 @@ if TYPE_CHECKING:
     from .environment import Environment
     from .expressions import Expression
 
+
 def evaluate(expr: "Expression", env: "Environment") -> "Value":
     from . import expressions, values
     from .environment import UpDeclaration
+
     match expr:
         case expressions.Program(decl, next_expr):
             return evaluate(next_expr, UpDeclaration(env, decl))
-                    
+
         case expressions.Lambda(pattern, binder):
             return values.Lambda(Closure(pattern, binder, env))
 
@@ -76,21 +76,22 @@ def evaluate(expr: "Expression", env: "Environment") -> "Value":
 
 def first(of: "Value") -> "Value":
     from . import values
+
     match of:
-        case values.Pair(a,_):
+        case values.Pair(a, _):
             return a
         case values.NeutralValue(neut):
             n = values.First(neut)
             return values.NeutralValue(n)
         case _:
             raise Critical("first error")
-        
 
 
 def second(of: "Value") -> "Value":
     from . import values
+
     match of:
-        case values.Pair(_,b):
+        case values.Pair(_, b):
             return b
         case values.NeutralValue(neut):
             n = values.Second(neut)
@@ -101,6 +102,7 @@ def second(of: "Value") -> "Value":
 
 def apply(fn_val: "Value", arg: "Value") -> "Value":
     from . import values
+
     match fn_val, arg:
         case (values.Lambda(cl), values.Value()):
             return cl.instantiate(arg)
@@ -118,6 +120,6 @@ def apply(fn_val: "Value", arg: "Value") -> "Value":
         case (values.NeutralValue(neutral_fn), values.Value()):
             n = values.Application(neutral_fn, arg)
             return values.NeutralValue(n)
-        
+
         case _:
             raise Critical("apply error")

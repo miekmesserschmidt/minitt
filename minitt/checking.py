@@ -136,7 +136,7 @@ def check(
             env1 = UpDeclaration(env, decl)
             return check(env_len, env1, gamma1, next_expr, type_val)
 
-        case ((Star(), values.Top()) | (Top(), values.Set())):
+        case (Star(), values.Top()) | (Top(), values.Set()):
             return (env, type_env)
 
         case expr, type_val:

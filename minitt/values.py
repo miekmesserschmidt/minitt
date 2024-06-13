@@ -52,12 +52,12 @@ class Sum(Value):
 
 
 @dataclass
-class Star(Value): # Unit
+class Star(Value):  # Unit
     pass
 
 
 @dataclass
-class Top(Value): # One
+class Top(Value):  # One
     pass
 
 
